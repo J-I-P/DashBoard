@@ -4,8 +4,8 @@ function chgSubTotal() {
 }
 
 function showStatus() {
-    var n = $("#input[name='styles']:checked").val();
-    var selectIndex = $("#menus opton:selected").index();
+    var n = $("input[name='styles']:checked").val();
+    var selectIndex = $("#menus option:selected").index();
     var perPrice = price[n][selectIndex];
 
     $("#perPrice").val(perPrice);
@@ -13,7 +13,7 @@ function showStatus() {
 }
 
 function chg() {
-    var n = ( typeof(this.value) == "string" ? this.value : $("#input[name='styles']:checked").val());
+    var n = ( typeof(this.value) == "string" ? this.value : $("input[name='styles']:checked").val());
     $("#menus option").remove();
     for(var i in opt[n]) {
         var newOpt = new Option( opt[n][i], price[n][i]);
@@ -22,7 +22,7 @@ function chg() {
 }
 
 function main_pos() {
-    $("#input[name='styles']").on("change", chg);
+    $("input[name='styles']").on("change", chg);
     $("#menus").on("change", showStatus);
     $("#amount").on("change", showStatus);
     chg();
