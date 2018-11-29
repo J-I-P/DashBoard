@@ -24,18 +24,18 @@
         <option selected>Choose...</option>
     </select>
     <label class="my-1 mr-2" for="perPrice">單價</label>
-    <input type="text" class="form-control mb-2 mr-sm-2" id="perPrice" disabled>
+    <input type="text" class="form-control mb-2 mr-sm-2" id="perPrice" disabled size="6">
     <label class="my-1 mr-2" for="amount">數量</label>
-    <input type="text" class="form-control mb-2 mr-sm-2" id="amount">
+    <input type="text" class="form-control mb-2 mr-sm-2" id="amount" size="6">
     <label class="my-1 mr-2" for="total">小計</label>
-    <input type="text" class="form-control mb-2 mr-sm-2" id="total" disabled>
+    <input type="text" class="form-control mb-2 mr-sm-2" id="total" disabled size="16">
 </form>
 <h1>點餐模式</h1>
 <button type="button" class="btn btn-primary" id="addItem">
     <i class="fas fa-cart-plus"></i>
     放入購物車
 </button>
-<button type="button" class="btn btn-danger">
+<button type="button" class="btn btn-danger" id="clearItem">
     <i class="fas fa-trash"></i>
     清空購物車
 </button>
@@ -47,7 +47,7 @@
 <hr>
 <h4>購物車清單</h4>
 <h5>訂單: <span id="txtOrder" class="mr-4"></span> 總計: $<span id="orderTotal" class="mr-4"></span></h5>
-<table class="table">
+<table class="table" id="table">
         <thead>
           <tr>
             <th scope="col">#</th>

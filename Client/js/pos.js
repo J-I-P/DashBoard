@@ -35,6 +35,8 @@ function addItem() {
             unnitPrice: price[n][selectIndex]
         }
 
+        orderList.push(obj);
+
         var item = `
             <tr>
                 <th scope="row">${orderList.length}</th>
@@ -43,15 +45,19 @@ function addItem() {
                 <td>${amount}</td>
                 <td>${total}</td>
                 <td>
-                    <button class="btn btn-danger">
+                    <button class="btn btn-danger tablebtn">
                     <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>
         `
-
-        orderList.push(obj);
+        
         $("#order").append(item);
+}
+
+function clearItem() {
+    $("#order").empty();
+    orderList = [];
 }
 
 function main_pos() {
@@ -59,6 +65,7 @@ function main_pos() {
     $("#menus").on("change", showStatus);
     $("#amount").on("change", showStatus);
     $("#addItem").on("click", addItem);
+    $("#clearItem").on("click", clearItem);
     chg();
 }
 
