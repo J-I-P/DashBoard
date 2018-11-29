@@ -51,7 +51,7 @@ function addItem() {
                 <td>${total}</td>
                 <td>
                     <button class="btn btn-danger tablebtn">
-                    <i class="fas fa-trash"></i>
+                    <i class="far fa-trash-alt"></i>
                     </button>
                 </td>
             </tr>
@@ -68,6 +68,19 @@ function clearItem() {
     setTotal(0);
 }
 
+function padding(num, length) {
+    //这里用slice和substr均可
+    return (Array(length).join("0") + num).slice(-length);
+}
+
+function setOrderID() {
+    var today = new Date();
+    var sY = today.getFullYear().toString();
+    var sM = (today.getMonth() + 1).toString();
+    var sD = today.getDate().toString();
+    $("#orderID").val(sY+sM+sD+padding(seqNo, 3));
+}
+
 function main_pos() {
     $("input[name='styles']").on("change", chg);
     $("#menus").on("change", showStatus);
@@ -75,6 +88,7 @@ function main_pos() {
     $("#addItem").on("click", addItem);
     $("#clearItem").on("click", clearItem);
     chg();
+    setOrderID();
 }
 
 var opt, price;
