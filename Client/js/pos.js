@@ -21,6 +21,11 @@ function chg() {
     }
 }
 
+function setTotal(price) {
+    orderTotal = price*1;
+    $("#orderTotal").html(orderTotal);
+}
+
 function addItem() {
         var n = $("input[name='styles']:checked").val();
         var selectIndex = $("#menus option:selected").index();
@@ -53,11 +58,14 @@ function addItem() {
         `
         
         $("#order").append(item);
+
+        setTotal(total*1+orderTotal);
 }
 
 function clearItem() {
     $("#order").empty();
     orderList = [];
+    setTotal(0);
 }
 
 function main_pos() {
