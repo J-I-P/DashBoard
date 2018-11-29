@@ -21,10 +21,44 @@ function chg() {
     }
 }
 
+function addItem() {
+        var n = $("input[name='styles']:checked").val();
+        var selectIndex = $("#menus option:selected").index();
+        var amount = $("#amount").val();
+        var total = $("#total").val();
+
+        var obj = {
+            styles: n, 
+            menu_index: selectIndex,
+            amount,
+            itemName: opt[n][selectIndex],
+            unnitPrice: price[n][selectIndex]
+        }
+
+        var item = `
+            <tr>
+                <th scope="row">${orderList.length}</th>
+                <td>${opt[n][selectIndex]}</td>
+                <td>${price[n][selectIndex]}</td>
+                <td>${amount}</td>
+                <td>${total}</td>
+                <td>
+                    <button class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `
+
+        orderList.push(obj);
+        $("#order").append(item);
+}
+
 function main_pos() {
     $("input[name='styles']").on("change", chg);
     $("#menus").on("change", showStatus);
     $("#amount").on("change", showStatus);
+    $("#addItem").on("click", addItem);
     chg();
 }
 
