@@ -43,19 +43,21 @@ function addItem() {
 
         orderList.push(obj);
 
-        var item = '<tr>'+
-        '<th scope="row">'+ orderList.length+'</th>'+
-        '<td>'+ opt[n][selectIndex]+'</td>'+
-        '<td>'+ price[n][selectIndex]+'</td>'+
-        '<td>'+ amount+'</td>'+
-        '<td>'+ total+'</td>'+
-        '<td>'+
-            '<button class="btn btn-danger tablebtn">'+
-                '<i class="far fa-trash-alt"></i>'+
-            '</button>'+
-        '</td>'+
-    '</tr>';
-/*
+        //SE5
+        // var item = '<tr>'+
+        //     '<th scope="row">'+ orderList.length+'</th>'+
+        //         '<td>'+ opt[n][selectIndex]+'</td>'+
+        //         '<td>'+ price[n][selectIndex]+'</td>'+
+        //         '<td>'+ amount+'</td>'+
+        //         '<td>'+ total+'</td>'+
+        //         '<td>'+
+        //             '<button class="btn btn-danger tablebtn">'+
+        //                 '<i class="far fa-trash-alt"></i>'+
+        //             '</button>'+
+        //         '</td>'+
+        //     '</tr>';
+
+        //SE6
         var item = `
             <tr>
                 <th scope="row">${orderList.length}</th>
@@ -69,8 +71,7 @@ function addItem() {
                     </button>
                 </td>
             </tr>
-        `
- */       
+        `  
         $("#order").append(item);
 
         setTotal(total*1+orderTotal);
@@ -111,13 +112,19 @@ function delOnRow() { //button in td being clicked
     //console.log(rowIndex, colIndex);
 
     var oneRow = $(this).closest("tr");
-    var n = oneRow['0'].firstChild.innerText *1 -1;
+    //SE5
+    //var n = oneRow['0'].firstChild.innerText *1 -1;
+    //SE6
+    var n = oneRow['0'].firstElementChild.innerText *1 -1;
 
     oneRow.remove();
 
     var newTBody = $('#order')['0'].children;
     for(var i = 0; i<newTBody.length ; ++i){
-        newTBody[i].firstChild.innerText = i+1;
+        //SE5
+        //newTBody[i].firstChild.innerText = i+1;
+        //SE6
+        newTBody[i].firstElementChild.innerText = i+1;
     }
 
     //console.log(orderList[n]);
