@@ -24,6 +24,7 @@ function chg() {
 function setTotal(price) {
     orderTotal = price*1;
     $("#orderTotal").html(orderTotal);
+    $('#txtOrderID').html( $("#orderID").val());
 }
 
 function addItem() {
@@ -42,6 +43,19 @@ function addItem() {
 
         orderList.push(obj);
 
+        var item = '<tr>'+
+        '<th scope="row">'+ orderList.length+'</th>'+
+        '<td>'+ opt[n][selectIndex]+'</td>'+
+        '<td>'+ price[n][selectIndex]+'</td>'+
+        '<td>'+ amount+'</td>'+
+        '<td>'+ total+'</td>'+
+        '<td>'+
+            '<button class="btn btn-danger tablebtn">'+
+                '<i class="far fa-trash-alt"></i>'+
+            '</button>'+
+        '</td>'+
+    '</tr>';
+/*
         var item = `
             <tr>
                 <th scope="row">${orderList.length}</th>
@@ -51,12 +65,12 @@ function addItem() {
                 <td>${total}</td>
                 <td>
                     <button class="btn btn-danger tablebtn">
-                    <i class="far fa-trash-alt"></i>
+                        <i class="far fa-trash-alt"></i>
                     </button>
                 </td>
             </tr>
         `
-        
+ */       
         $("#order").append(item);
 
         setTotal(total*1+orderTotal);
@@ -75,7 +89,42 @@ function setOrderID() {
     //var sD = today.getDate().toString();
     var sM = numeral(today.getMonth()+1).format('00');
     var sD = numeral(today.getDate()).format('00');
-    $("#orderID").val(sY+sM+sD+numeral(seqNo).format('000'));
+    var sN = numeral(seqNo).format('0000');
+    $("#orderID").val(sY+sM+sD+sN);
+}
+
+function delOnRow() { //button in td being clicked
+    //console.log("In td tag button clicked...");
+    //console.log($(this)); // $(this) : the clicked button
+    // $(this).parent() : the <td>
+    // $(this).parent().parent() :the <tr>
+    // $(this).parent().parent().parent() : the <tbody>
+    // $(this).parent().parent().parent().children() : [tr-1, tr-2, ...]
+    // $(this).parent().parent().children() : <tr>.children() : [td-1, td-2, ...]
+    // array.index(ele) : index of element in the array
+    // rowIndex = [tr-1, tr-2, ...].index(the <tr>)
+    // colIndex = [td-1, td-2, ...].index(the <td>)
+
+    var rowIndex = $(this).parent().parent().parent().children().index( $(this).parent().parent());
+    var colIndex = $(this).parent().parent().children().index( $(this).parent());
+
+    //console.log(rowIndex, colIndex);
+
+    var oneRow = $(this).closest("tr");
+    var n = oneRow['0'].firstChild.innerText *1 -1;
+
+    oneRow.remove();
+
+    var newTBody = $('#order')['0'].children;
+    for(var i = 0; i<newTBody.length ; ++i){
+        newTBody[i].firstChild.innerText = i+1;
+    }
+
+    //console.log(orderList[n]);
+    setTotal( orderTotal - orderList[n].unnitPrice*orderList[n].amount);
+    orderList.splice(n,1);
+
+
 }
 
 function main_pos() {
@@ -84,6 +133,7 @@ function main_pos() {
     $("#amount").on("change", showStatus);
     $("#addItem").on("click", addItem);
     $("#clearItem").on("click", clearItem);
+    $('.table tbody').on("click", '.btn', delOnRow);
     chg();
     setOrderID();
 }
