@@ -68,17 +68,14 @@ function clearItem() {
     setTotal(0);
 }
 
-function padding(num, length) {
-    //这里用slice和substr均可
-    return (Array(length).join("0") + num).slice(-length);
-}
-
 function setOrderID() {
     var today = new Date();
     var sY = today.getFullYear().toString();
-    var sM = (today.getMonth() + 1).toString();
-    var sD = today.getDate().toString();
-    $("#orderID").val(sY+sM+sD+padding(seqNo, 3));
+    //var sM = (today.getMonth() + 1).toString();
+    //var sD = today.getDate().toString();
+    var sM = numeral(today.getMonth()+1).format('00');
+    var sD = numeral(today.getDate()).format('00');
+    $("#orderID").val(sY+sM+sD+numeral(seqNo).format('000'));
 }
 
 function main_pos() {
