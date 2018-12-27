@@ -91,7 +91,44 @@ function setOrderID() {
     var sM = numeral(today.getMonth()+1).format('00');
     var sD = numeral(today.getDate()).format('00');
     var sN = numeral(seqNo).format('0000');
+    var testID = sY+sM+sD;
     $("#orderID").val(sY+sM+sD+sN);
+
+    // $.ajax({
+    //     url:'./Server/test.php',
+    //     method: 'POST',
+    //     data: {
+    //         orderID_date: testID,
+    //     },
+    //     async: false,
+    //     success: function(rsp) {
+    //         rsp = eval(rsp);
+    //         $("#orderID").val(testID + numeral(Number(rsp[rsp.length - 1].order_seqNo)+1).format('0000') );
+    //         console.log(rsp);
+
+    //     }
+    // })
+}
+
+function checkOut(){
+    $.ajax({
+        url:'./Server/checkOut.php',
+        method:'POST',
+        //async: false, 
+        data: {
+            orderID: $('#orderID').val(),
+            orderList: orderList,
+            orderTotal: orderTotal
+
+        },
+        success: function(rsp) {
+            console.log(rsp);
+            getAllOrderIDs();
+        }
+    });
+    ++seqNo;
+    setOrderID();
+    clearItem();
 }
 
 function delOnRow() { //button in td being clicked
@@ -134,6 +171,8 @@ function delOnRow() { //button in td being clicked
 
 }
 
+
+
 function main_pos() {
     $("input[name='styles']").on("change", chg);
     $("#menus").on("change", showStatus);
@@ -141,6 +180,7 @@ function main_pos() {
     $("#addItem").on("click", addItem);
     $("#clearItem").on("click", clearItem);
     $('.table tbody').on("click", '.btn', delOnRow);
+    $("#cash").on("click", checkOut);
     chg();
     setOrderID();
 }
