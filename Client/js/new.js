@@ -13,57 +13,87 @@ function showStatus() {
 }
 
 function chg() {
-    var n = ( typeof(this.value) == "string" ? this.value : $("input[name='styles']:checked").val());
+    var n = ( typeof(this.value) == "string" ? this.value : "0");
     $("#menus option").remove();
     for(var i in opt[n]) {
         var newOpt = new Option( opt[n][i], price[n][i]);
         $("#menus").append(newOpt);
     }
+    showStatus();
+}
+
+function showTableHeader(pID, pTotal) {
+    $("#txtOrderID").html( pID );
+    $("#orderTotal").html( pTotal*1 );
 }
 
 function setTotal(price) {
     orderTotal = price*1;
     $("#orderTotal").html(orderTotal);
-    $('#txtOrderID').html( $("#orderID").val());
+    $("#txtOrderID").html( $("#orderID").val());
+}
+
+function mkACartRow(pSeqNo, pItemObj) {
+    return  `
+    <tr>
+        <th scope="row">${pSeqNo}</th>
+        <td>${pItemObj.itemName}</td>
+        <td>${pItemObj.unnitPrice}</td>
+        <td>${pItemObj.qty}</td>
+        <td>${pItemObj.unnitPrice*pItemObj.qty}</td>
+        <td>
+            <button class="btn btn-danger tablebtn">
+                <i class="far fa-trash-alt"></i>
+            </button>
+        </td>
+    </tr>
+`  //依照mkACartObj的格式:itemName menu_index qty unnitPrice
+$("#order").append
+}
+
+function mkACartObj() {
+    var n = $("input[name='styles']:checked").val();
+    var index = $("#menus option:selected").index();
+    var qty = $("#amount").val();
+    var subTotal = $("#total").val();
+    
+    return {
+        styles: n,
+        menu_index: index,
+        qty: qty,
+        itemName: opt[n][index],
+        unnitPrice: price[n][index]
+    };
 }
 
 function addItem() {
-        var n = $("input[name='styles']:checked").val();
-        var selectIndex = $("#menus option:selected").index();
-        var amount = $("#amount").val();
-        var total = $("#total").val();
-        var obj = {
-            styles: n, 
-            menu_index: selectIndex,
-            amount,
-            itemName: opt[n][selectIndex],
-            unnitPrice: price[n][selectIndex]
-        }
-
+        var obj = mkACartObj();
         orderList.push(obj);
+        //console.log(obj);
 
-        var item = `
-            <tr>
-                <th scope="row">${orderList.length}</th>
-                <td>${opt[n][selectIndex]}</td>
-                <td>${price[n][selectIndex]}</td>
-                <td>${amount}</td>
-                <td>${total}</td>
-                <td>
-                    <button class="btn btn-danger tablebtn">
-                        <i class="far fa-trash-alt"></i>
-                    </button>
-                </td>
-            </tr>
-        `  
+        var item = mkACartRow( orderList.length, obj);
+        //console.log(item);
         $("#order").append(item);
-        setTotal(total*1+orderTotal);
+        orderTotal +=obj.unnitPrice*obj.qty;
+        showTableHeader( $("#orderID").val(), orderTotal);
+}
+
+function showOrderList() {
+    orderTotal = 0;
+    $("#order").empty();
+    for (var i in orderList ){
+        var item = mkACartRow((i*1+1), orderList[i]);
+        $("#order").append(item);
+        orderTotal += orderList[i].unnitPrice*orderList[i].qty;
+        //console.log(orderTotal);
+    }
+    showTableHeader( $("#orderID").val(), orderTotal );
+
 }
 
 function clearItem() {
-    $("#order").empty();
     orderList = [];
-    setTotal(0);
+    showOrderList();
 }
 
 function setOrderID(allOrderIDs) {
@@ -74,33 +104,24 @@ function setOrderID(allOrderIDs) {
     var sN = numeral(seqNo).format('0000');
     var sYMD = sY+sM+sD;
     
-    if (typeof(allOrderIDs)!="object" && setIDMode==0){
-        //++seqNo;
-        $.ajax({
-            url:'./Server/getAllOrderIDs.php',
-            method:'POST',
-            data: {
-                orderID: $('#orderID').val(),
-                orderList: orderList,
-                orderTotal: orderTotal
-            },
-            success: function(rsp) {
-                console.log(rsp);
-                setOrderID(eval(rsp));
-            }
-        });
-    }else if(typeof(allOrderIDs)!="object" && setIDMode==1){
-        ++seqNo;
-        setIDMode = 0;
-    }else{    var cnt = allOrderIDs.length;
-        var lastOrderID = allOrderIDs[cnt-1]+"";
-        lastDate = lastOrderID.substr(0,8);
+    var allOrderIDs = $("#orderIDs > option").map(
+        function() {return this.value;}
+    ).get();
+    //console.log(allOrderIDs);
+
+    var lastSeqNo = seqNo;
+    if (allOrderIDs.length!=0) {
+        var cnt = allOrderIDs.length;
+        var lastOrderID = allOrderIDs[cnt-1];
+        var lastDate = lastOrderID.substr(0,8);
         lastSeqNo = lastOrderID.substr(8)*1;
-        seqNo = (sYMD==lastDate? lastSeqNo+1 : seqNo+1);
     }
+
+    seqNo = (sYMD==lastDate? lastSeqNo+1: seqNo+1);
+
     var sN = numeral(seqNo).format('0000');
     $("#orderID").val(sYMD+sN);
-    $("#txtOrderID").html(sYMD+sN);
+    //$("#txtOrderID").html(sYMD+sN);
 }
 
 function checkOut(){
@@ -113,11 +134,10 @@ function checkOut(){
             orderTotal: orderTotal
         },
         success: function(rsp) {
-            console.log(rsp);
-            //getAllOrderIDs();
+            //console.log(rsp);
+            getAllOrderIDs();
         }
     });
-    setIDMode = 1;
     setOrderID();
     clearItem();
 }
@@ -135,32 +155,27 @@ function delOnRow() {
         newTBody[i].firstElementChild.innerText = i+1;
     }
 
-    setTotal( orderTotal - orderList[n].unnitPrice*orderList[n].amount);
+    orderTotal -= orderList[n].unnitPrice*orderList[n].qty;
+    showTableHeader( $("#orderID").val(), orderTotal );
     orderList.splice(n,1);
 }
 
 function showOrderItems() {
     var theID = $("#orderIDs option:selected").val();
-    // if (!theID){
-    //     return;
-    // }
-    // let result;
-    // result = await $.ajax({
-    //     url:'./Server/getOrderItems.php',
-    //     method: 'POST',
-    //     data: { orderID: theID },
-    // });
-    // return result;
+    if( !theID ){
+        return;
+    }
     $.ajax({
         url:'./Server/getOrderItems.php',
         method: 'POST',
         data: { orderID: theID },
     success: function(rsp) {
         var theID = $("#orderIDs option:selected").val();
-        console.log(rsp);
+        //console.log(rsp);
         var selectedOrderList = eval(rsp);
         var orderSum = 0;
         $("#order").empty();
+        
         for ( var i in selectedOrderList ) {
             var aItem = selectedOrderList[i];
             orderSum += aItem.qty * aItem.unit_price;
@@ -174,8 +189,10 @@ function showOrderItems() {
                 '</tr>';
             $("#order").append(item);
         }
-        $("#orderTotal").html(orderSum);
-        $("#txtOrderID").html(theID);
+        showTableHeader(theID, orderSum);
+        if(opMode==0){
+            showContentByOpMode();
+        }
     }
 });
 }
@@ -199,79 +216,36 @@ function getAllOrderIDs() {
             
             showOrderItems();
             
-            console.log(allOrderIDs);
+            //console.log(allOrderIDs);
             setOrderID(allOrderIDs);
         }
     })
-} 
-
-function clearall_table(){
-    $("#order").empty();
-
-    $("#orderTotal").html("");
-    $("#txtOrderID").html("");
-}
-
-function showOrderItemHandler(){
-    getAllOrderIDs();
-}
-
-function showNewOrderList(){
-    var today = new Date();
-    var sY = today.getFullYear().toString();
-    var sM = numeral(today.getMonth()+1).format('00');
-    var sD = numeral(today.getDate()).format('00');
-    var sN = numeral(seqNo).format('0000');
-    var sYMD = sY+sM+sD;
-
-    $("#orderID").val(sYMD+sN);
-
-    clearall_table();
-
-    var orderSum = 0;
-    for ( var i in orderList ) {
-        var aItem = orderList[i];
-        console.log(aItem);
-        orderSum += aItem.amount * aItem.unnitPrice;
-        var item =
-            '<tr>'+
-                '<th scope="row">' + (i*1+1) + '</th>'+
-                '<td>'+aItem.itemName+'</td>'+
-                '<td>'+aItem.unnitPrice+'</td>'+
-                '<td>'+aItem.amount+'</td>'+
-                '<td>'+ (aItem.amount*aItem.unnitPrice)+'</td>'+
-                '<td>'+
-                    '<button class="btn btn-danger tablebtn">'+
-                        '<i class="far fa-trash-alt"></i>'+
-                    '</button>'+
-                '</td>'+
-            '</tr>';
-        $("#order").append(item);
-    }
-    $("#orderTotal").html(orderSum);
-    $("#txtOrderID").html(sYMD+sN);
 }
 
 function toggleOpMode(){
+    console.log("in toggleOpMode...");
     opMode = 1-opMode;
+    showContentByOpMode();
+}
+
+function showContentByOpMode() {
+    console.log("in showContentByOpMode...");
     if(opMode==1){
         $("#newOID").hide();
         $("#insertArea").hide();
         $("#allOID").show();
         $("#txtOpMode").html("點餐");
-        clearall_table();
-        showOrderItemHandler();
+        showOrderItems();
     }else {
         $("#newOID").show();
         $("#insertArea").show();
         $("#allOID").hide();
         $("#txtOpMode").html("查詢");
-        showNewOrderList();
+        showOrderList();
     }
 }
 
 function main_new() {
-    toggleOpMode();
     $("input[name='styles']").on("change", chg);
     $("#menus").on("change", showStatus);
     $("#amount").on("change", showStatus);
@@ -279,13 +253,10 @@ function main_new() {
     $("#clearItem").on("click", clearItem);
     $('.table tbody').on("click", '.btn', delOnRow);
     $("#cash").on("click", checkOut);
-    chg();
-    setOrderID();
-    //showNewOrderList();
-
-    $("#btnRefreshOrderID").on("click", getAllOrderIDs);
     $("#btnOpMode").on("click", toggleOpMode);
-    //getAllOrderIDs();
+    chg();
+    getAllOrderIDs();
+    showContentByOpMode();
 }
 
 var opt, price;
@@ -303,4 +274,3 @@ var orderList = [];
 var orderTotal = 0;
 var seqNo = 0;
 var opMode = 1;
-var setIDMode = 0;

@@ -29,7 +29,7 @@
         $itemNo = $item['menu_index'];
         $itemName = $item['itemName'];
         $unitPrice = $item['unnitPrice'];
-        $qty = $item['amount'];
+        $qty = $item['qty']; //index依照orderList裡的名稱
 
         $sql = "INSERT INTO `item_list`(`order_id`, `item_group`, `item_no`, `item_name`, `unit_price`, `qty`) VALUES ('$orderID', '$itemGroup', '$itemNo', '$itemName', $unitPrice, $qty)";
         
